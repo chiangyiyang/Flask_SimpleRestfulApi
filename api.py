@@ -1,16 +1,17 @@
 from flask import Flask
-from flask_restful import Resource, Api
+from flask_restful import Resource, Api, reqparse
 
 app = Flask(__name__)
 api = Api(app)
 
+Devices = {'a01':{'lat': 23.51, 'lng': 121.31},
+           'a02':{'lat': 23.52, 'lng': 121.32},
+           'a03':{'lat': 23.53, 'lng': 121.33}}
+
 class DeviceList(Resource):
-    def get(self):
-        # 回傳3組測試資料
-        return [                    
-            {'id':'aa01', 'lat':23.51, 'lng':121.31},
-            {'id':'aa02', 'lat':23.52, 'lng':121.32},
-            {'id':'aa03', 'lat':23.53, 'lng':121.33}]
+    def get(self):      
+        #Testing Cmd: curl http://IP:Port/devices 
+        return Devices    
 
 api.add_resource(DeviceList, '/devices')
 
