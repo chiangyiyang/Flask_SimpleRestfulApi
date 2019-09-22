@@ -4,9 +4,9 @@ from flask_restful import Resource, Api, reqparse, abort
 app = Flask(__name__)
 api = Api(app)
 
-Devices = {'a01':{'lat': 23.51, 'lng': 121.31},
-           'a02':{'lat': 23.52, 'lng': 121.32},
-           'a03':{'lat': 23.53, 'lng': 121.33}}
+Devices = {'a01': {'lat': 23.51, 'lng': 121.31},
+           'a02': {'lat': 23.52, 'lng': 121.32},
+           'a03': {'lat': 23.53, 'lng': 121.33}}
 
 parser = reqparse.RequestParser()
 parser.add_argument('id')
@@ -20,36 +20,53 @@ def abort_if_device_doesnt_exist(device_id):
 
 # Device
 # shows a single Device item and lets you delete a Device item
+
+
 class Device(Resource):
     def get(self, device_id):
-        #Testing Cmd: curl http://%IP%:%Port%/devices/a03
+        # Testing Cmd: curl http://%IP%:%Port%/devices/a03
         abort_if_device_doesnt_exist(device_id)
         return Devices[device_id]
 
     def delete(self, device_id):
-        #Testing Cmd: curl -X DELETE http://%IP%:%Port%/devices/a03
+        # Testing Cmd: curl -X DELETE http://%IP%:%Port%/devices/a03
         abort_if_device_doesnt_exist(device_id)
         del Devices[device_id]
         return '', 204
 
     def put(self, device_id):
-        #Testing Cmd: curl -X PUT -d "lat=23.0" -d "lng=121.0" http://%IP%:%Port%/devices/a03
+        # Testing Cmd: curl -X PUT -d "lat=23.0" -d "lng=121.0" http://%IP%:%Port%/devices/a03
         args = parser.parse_args()
         Devices[device_id] = {'lat': args['lat'], 'lng': args['lng']}
-        return Devices[device_id], 201        
-        
-class DeviceList(Resource):
-    def get(self):      
-        #Testing Cmd: curl http://%IP%:%Port%/devices 
-        return Devices    
+        return Devices[device_id], 201
 
-    def post(self):     
-        #Testing Cmd: curl -X POST -d "id=a04" -d "lat=23.5" -d "lng=121.5"  http://%IP%:%Port%/devices  
+    def patch(self, device_id):
+        # Testing Cmd: curl -X PATCH -d "lat=23.0" http://%IP%:%Port%/devices/a03
+        abort_if_device_doesnt_exist(device_id)
+        info = Devices[device_id]
         args = parser.parse_args()
-        if  args['id'] in Devices.keys():
+        if args['lat'] != None:
+            info['lat'] = float( args['lat'])
+        if args['lng'] != None:
+            info['lng'] = float( args['lng'])
+
+        Devices[device_id] = info
+        return Devices[device_id], 201
+
+
+class DeviceList(Resource):
+    def get(self):
+        # Testing Cmd: curl http://%IP%:%Port%/devices
+        return Devices
+
+    def post(self):
+        # Testing Cmd: curl -X POST -d "id=a04" -d "lat=23.5" -d "lng=121.5"  http://%IP%:%Port%/devices
+        args = parser.parse_args()
+        if args['id'] in Devices.keys():
             return "ID id duplicated!", 406
         Devices[args['id']] = {'lat': args['lat'], 'lng': args['lng']}
         return Devices[args['id']], 201
+
 
 api.add_resource(DeviceList, '/devices')
 api.add_resource(Device, '/devices/<device_id>')
