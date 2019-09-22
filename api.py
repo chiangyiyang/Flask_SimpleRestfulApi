@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_restful import Resource, Api, reqparse, abort
+import time
 
 app = Flask(__name__)
 api = Api(app)
@@ -33,7 +34,6 @@ parser = reqparse.RequestParser()
 parser.add_argument('id')
 parser.add_argument('lat')
 parser.add_argument('lng')
-parser.add_argument('ts')
 parser.add_argument('t')
 parser.add_argument('h')
 
@@ -98,16 +98,17 @@ class LogList(Resource):
         return Logs
 
     def post(self):
-        # Testing Cmd: curl -X POST -d "id=a04" -d "ts=001" -d "t=23.5" -d "h=98.5"  http://%IP%:%Port%/logs
+        # Testing Cmd: curl -X POST -d "id=a04" -d "t=23.5" -d "h=98.5"  http://%IP%:%Port%/logs
         args = parser.parse_args()
         if args['id'] not in Devices.keys():
             return "Device %s is not available!" % args['id'], 406
         if args['id'] not in Logs.keys():
             Logs[args['id']] = {}
-        if args['ts'] in Logs[args['id']].keys():
-            return "Timespame is duplicated!", 406
+        ts = int(time.time())
+        if ts in Logs[args['id']].keys():
+            return "Timestamp is duplicated!", 406
         tmp = Logs[args['id']]
-        tmp[args['ts']] = {'t': args['t'], 'h': args['h']}
+        tmp[ts] = {'t': args['t'], 'h': args['h']}
         Logs[args['id']] = tmp
         return Logs[args['id']], 201
 
