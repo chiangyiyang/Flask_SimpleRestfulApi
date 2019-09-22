@@ -8,10 +8,34 @@ Devices = {'a01': {'lat': 23.51, 'lng': 121.31},
            'a02': {'lat': 23.52, 'lng': 121.32},
            'a03': {'lat': 23.53, 'lng': 121.33}}
 
+Logs = {
+    'a01': {
+        '001': {'t': 24, 'h': 91},
+        '002': {'t': 25, 'h': 92},
+        '003': {'t': 26, 'h': 93},
+        '004': {'t': 27, 'h': 94},
+        '005': {'t': 28, 'h': 95}},
+    'a02': {
+        '001': {'t': 24, 'h': 91},
+        '002': {'t': 25, 'h': 92},
+        '003': {'t': 26, 'h': 93},
+        '004': {'t': 27, 'h': 94},
+        '005': {'t': 28, 'h': 95}},
+    'a03': {
+        '001': {'t': 24, 'h': 91},
+        '002': {'t': 25, 'h': 92},
+        '003': {'t': 26, 'h': 93},
+        '004': {'t': 27, 'h': 94},
+        '005': {'t': 28, 'h': 95}}
+}
+
 parser = reqparse.RequestParser()
 parser.add_argument('id')
 parser.add_argument('lat')
 parser.add_argument('lng')
+parser.add_argument('ts')
+parser.add_argument('t')
+parser.add_argument('h')
 
 
 def abort_if_device_doesnt_exist(device_id):
@@ -46,9 +70,9 @@ class Device(Resource):
         info = Devices[device_id]
         args = parser.parse_args()
         if args['lat'] != None:
-            info['lat'] = float( args['lat'])
+            info['lat'] = float(args['lat'])
         if args['lng'] != None:
-            info['lng'] = float( args['lng'])
+            info['lng'] = float(args['lng'])
 
         Devices[device_id] = info
         return Devices[device_id], 201
@@ -63,13 +87,32 @@ class DeviceList(Resource):
         # Testing Cmd: curl -X POST -d "id=a04" -d "lat=23.5" -d "lng=121.5"  http://%IP%:%Port%/devices
         args = parser.parse_args()
         if args['id'] in Devices.keys():
-            return "ID id duplicated!", 406
+            return "ID is duplicated!", 406
         Devices[args['id']] = {'lat': args['lat'], 'lng': args['lng']}
         return Devices[args['id']], 201
 
 
+class LogList(Resource):
+    def get(self):
+        # Testing Cmd: curl http://%IP%:%Port%/logs
+        return Logs
+
+    def post(self):
+        # Testing Cmd: curl -X POST -d "id=a04" -d "ts=001" -d "t=23.5" -d "h=98.5"  http://%IP%:%Port%/logs
+        args = parser.parse_args()
+        if args['id'] not in Devices.keys():
+            return "Device %s is not available!" % args['id'], 406
+        if args['ts'] in Logs[args['id']].keys():
+            return "Timespame is duplicated!", 406
+        tmp = Logs[args['id']]
+        tmp[args['ts']] = {'t': args['t'], 'h': args['h']}
+        Logs[args['id']] = tmp
+        return Logs[args['id']], 201
+
+
 api.add_resource(DeviceList, '/devices')
 api.add_resource(Device, '/devices/<device_id>')
+api.add_resource(LogList, '/logs')
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8080, debug=True)  # 將IP及Port設定成對外服務
