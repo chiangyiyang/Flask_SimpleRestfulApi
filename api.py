@@ -102,6 +102,8 @@ class LogList(Resource):
         args = parser.parse_args()
         if args['id'] not in Devices.keys():
             return "Device %s is not available!" % args['id'], 406
+        if args['id'] not in Logs.keys():
+            Logs[args['id']] = {}
         if args['ts'] in Logs[args['id']].keys():
             return "Timespame is duplicated!", 406
         tmp = Logs[args['id']]
@@ -110,9 +112,17 @@ class LogList(Resource):
         return Logs[args['id']], 201
 
 
+class Log(Resource):
+    def get(self, device_id):
+        # Testing Cmd: curl http://%IP%:%Port%/devices/a03
+        abort_if_device_doesnt_exist(device_id)
+        return Logs[device_id]
+
+
 api.add_resource(DeviceList, '/devices')
 api.add_resource(Device, '/devices/<device_id>')
 api.add_resource(LogList, '/logs')
+api.add_resource(Log, '/logs/<device_id>')
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8080, debug=True)  # 將IP及Port設定成對外服務
