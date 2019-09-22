@@ -8,6 +8,11 @@ Devices = {'a01':{'lat': 23.51, 'lng': 121.31},
            'a02':{'lat': 23.52, 'lng': 121.32},
            'a03':{'lat': 23.53, 'lng': 121.33}}
 
+parser = reqparse.RequestParser()
+parser.add_argument('id')
+parser.add_argument('lat')
+parser.add_argument('lng')
+
 class DeviceList(Resource):
     def get(self):      
         #Testing Cmd: curl http://IP:Port/devices 
