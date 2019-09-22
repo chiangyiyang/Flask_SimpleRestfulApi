@@ -31,6 +31,13 @@ class Device(Resource):
         abort_if_device_doesnt_exist(device_id)
         del Devices[device_id]
         return '', 204
+
+    def put(self, device_id):
+        #Testing Cmd: curl -X PUT -d "lat=23.0" -d "lng=121.0" http://%IP%:%Port%/devices/a03
+        args = parser.parse_args()
+        Devices[device_id] = {'lat': args['lat'], 'lng': args['lng']}
+        return Devices[device_id], 201        
+        
 class DeviceList(Resource):
     def get(self):      
         #Testing Cmd: curl http://%IP%:%Port%/devices 
