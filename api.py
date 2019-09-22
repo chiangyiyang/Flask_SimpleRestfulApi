@@ -26,6 +26,11 @@ class Device(Resource):
         abort_if_device_doesnt_exist(device_id)
         return Devices[device_id]
 
+    def delete(self, device_id):
+        #Testing Cmd: curl -X DELETE http://%IP%:%Port%/devices/a03
+        abort_if_device_doesnt_exist(device_id)
+        del Devices[device_id]
+        return '', 204
 class DeviceList(Resource):
     def get(self):      
         #Testing Cmd: curl http://%IP%:%Port%/devices 
