@@ -18,6 +18,14 @@ class DeviceList(Resource):
         #Testing Cmd: curl http://IP:Port/devices 
         return Devices    
 
+    def post(self):     
+        #Testing Cmd: curl -X POST -d "id=a04" -d "lat=23.5" -d "lng=121.5"  http://IP:Port/devices  
+        args = parser.parse_args()
+        if  args['id'] in Devices.keys():
+            return "ID id duplicated!", 406
+        Devices[args['id']] = {'lat': args['lat'], 'lng': args['lng']}
+        return Devices[args['id']], 201
+
 api.add_resource(DeviceList, '/devices')
 
 if __name__ == '__main__':
