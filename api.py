@@ -10,24 +10,24 @@ Devices = {'a01': {'lat': 23.51, 'lng': 121.31},
            'a03': {'lat': 23.53, 'lng': 121.33}}
 
 Logs = {
-    'a01': {
-        '001': {'t': 24, 'h': 91},
-        '002': {'t': 25, 'h': 92},
-        '003': {'t': 26, 'h': 93},
-        '004': {'t': 27, 'h': 94},
-        '005': {'t': 28, 'h': 95}},
-    'a02': {
-        '001': {'t': 24, 'h': 91},
-        '002': {'t': 25, 'h': 92},
-        '003': {'t': 26, 'h': 93},
-        '004': {'t': 27, 'h': 94},
-        '005': {'t': 28, 'h': 95}},
-    'a03': {
-        '001': {'t': 24, 'h': 91},
-        '002': {'t': 25, 'h': 92},
-        '003': {'t': 26, 'h': 93},
-        '004': {'t': 27, 'h': 94},
-        '005': {'t': 28, 'h': 95}}
+    'a01': [
+         {'ts': 1, 't': 24.0, 'h': 91.5},
+         {'ts': 2, 't': 25.0, 'h': 92.5},
+         {'ts': 3, 't': 26.0, 'h': 93.5},
+         {'ts': 4, 't': 27.0, 'h': 94.5},
+         {'ts': 5, 't': 28.0, 'h': 95.5}],
+    'a02': [
+         {'ts': 1, 't': 24.0, 'h': 91.5},
+         {'ts': 2, 't': 25.0, 'h': 92.5},
+         {'ts': 3, 't': 26.0, 'h': 93.5},
+         {'ts': 4, 't': 27.0, 'h': 94.5},
+         {'ts': 5, 't': 28.0, 'h': 95.5}],
+    'a03': [
+         {'ts': 1, 't': 24.0, 'h': 91.5},
+         {'ts': 2, 't': 25.0, 'h': 92.5},
+         {'ts': 3, 't': 26.0, 'h': 93.5},
+         {'ts': 4, 't': 27.0, 'h': 94.5},
+         {'ts': 5, 't': 28.0, 'h': 95.5}],
 }
 
 parser = reqparse.RequestParser()
@@ -98,17 +98,17 @@ class LogList(Resource):
         return Logs
 
     def post(self):
-        # Testing Cmd: curl -X POST -d "id=a04" -d "t=23.5" -d "h=98.5"  http://%IP%:%Port%/logs
+        # Testing Cmd: curl -X POST -d "id=a03" -d "t=23.5" -d "h=98.5"  http://%IP%:%Port%/logs
         args = parser.parse_args()
         if args['id'] not in Devices.keys():
             return "Device %s is not available!" % args['id'], 406
         if args['id'] not in Logs.keys():
             Logs[args['id']] = {}
         ts = int(time.time())
-        if ts in Logs[args['id']].keys():
-            return "Timestamp is duplicated!", 406
+        # if ts in Logs[args['id']].keys():
+        #     return "Timestamp is duplicated!", 406
         tmp = Logs[args['id']]
-        tmp[ts] = {'t': args['t'], 'h': args['h']}
+        tmp = tmp[-4:]+[ {'ts': ts, 't': args['t'], 'h': args['h']}, ]
         Logs[args['id']] = tmp
         return Logs[args['id']], 201
 
